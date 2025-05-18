@@ -96,28 +96,30 @@ Step14. click on debug and simulate using simulation as shown below
   
 
 ## STM 32 CUBE PROGRAM :
+
 ```
 #include "main.h"
+
 TIM_HandleTypeDef htim2;
+
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM2_Init(void);
+
 int main(void)
 {
+
   HAL_Init();
 
-  /SystemClock_Config();
-
-  /MX_GPIO_Init();
+  SystemClock_Config();
+  MX_GPIO_Init();
   MX_TIM2_Init();
-
-
-
   HAL_TIM_Base_Start(&htim2);
-   HAL_TIM_PWM_Init(&htim2);
-   HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
+  HAL_TIM_PWM_Init(&htim2);
+  HAL_TIM_PWM_Start(&htim2,TIM_CHANNEL_1);
   while (1)
   {
+
   }
 }
 
@@ -125,19 +127,22 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -148,11 +153,25 @@ void SystemClock_Config(void)
   }
 }
 
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM2_Init(void)
 {
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -179,82 +198,102 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 900;
+  sConfigOC.Pulse = 700;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
+
   HAL_TIM_MspPostInit(&htim2);
 
 }
 
+
 static void MX_GPIO_Init(void)
 {
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
 }
+
+
 void Error_Handler(void)
 {
+
   __disable_irq();
   while (1)
   {
   }
+
 }
 
 #ifdef  USE_FULL_ASSERT
+
 void assert_failed(uint8_t *file, uint32_t line)
 {
+
 }
 #endif
 
+
 ```
-## DUTY CYCLE AND FREQUENCY CALCULATION:
-### FOR DUTY RATIO 50%
-![Screenshot 2025-05-07 150116](https://github.com/user-attachments/assets/e226d5d0-0a76-454c-8fad-de76370a9cb1)
+
+
+
+## DUTY CYCLE AND FREQUENCY CALCULATION 
+
+### FOR PULSE 50
+![Screenshot 2025-05-15 140410](https://github.com/user-attachments/assets/3228c9ed-9fa7-4713-9217-e115732e9016)
+
+TON = 0.5ms
+
+TOFF= 0.5ms
+
+TOTAL TIME = 1.0ms
+
+FREQUENCY = 1/(1.0ms) = 1000 Hz
+
+### FOR PULSE 60
+
+![Screenshot 2025-05-15 140546](https://github.com/user-attachments/assets/0e666c4d-b06a-4ba4-8907-5c5a1c9b5d80)
 
 TON = 0.6ms
 
-TOFF= 0.6ms
+TOFF= 0.4ms
 
-TOTAL TIME = 1.2ms
+TOTAL TIME = 1.0ms
 
-FREQUENCY = 1/(1.2ms) = 833.33Hz
-
-### FOR DUTY RATIO 70%
-![Screenshot 2025-05-07 150748](https://github.com/user-attachments/assets/1866d47f-ebe9-4e1e-92a0-5c768cf94a84)
-
-TON = 0.84ms
-
-TOFF= 0.36
-
-TOTAL TIME = 1.2ms
-
-FREQUENCY = 1/(1.2ms) = 833.33Hz
+FREQUENCY = 1/(1.0ms) = 1000 Hz
 
 
-### FOR DUTY RATIO 90%
-![Screenshot 2025-05-07 150830](https://github.com/user-attachments/assets/4df9cfbd-c246-4b48-bfa4-45daa915e638)
+### FOR PULSE 70
+![Screenshot 2025-05-15 140628](https://github.com/user-attachments/assets/aa08814d-bc87-43b6-80a1-989dab194519)
 
 
-TON = 1.08ms
+TON = 0.7ms
 
-TOFF= 0.12ms
+TOFF= 0.3ms
 
-TOTAL TIME = 1.2ms
+TOTAL TIME = 1.0ms
 
-FREQUENCY = 1/(1.2ms) = 833.33Hz
+FREQUENCY = 1/(1.0ms) = 1000 Hz
 
 ## OUTPUT SCREENSHOTS OF PROTEUS:
-![Screenshot 2025-05-07 151700](https://github.com/user-attachments/assets/1c0731af-f5c8-43a5-9360-0d66c21b8284)
+![image](https://github.com/user-attachments/assets/234f0a22-6785-4137-8350-8ba1f02986be)
+
+
 
 ## CIRCUIT DIAGRAM (EXPORT THE GRAPHICS TO PDF AND ADD THE SCREEN SHOT HERE):
-![Screenshot 2025-05-07 152010](https://github.com/user-attachments/assets/23b836c2-3821-45df-a6ae-b57d2ad2f9ca)
+![image](https://github.com/user-attachments/assets/29911d5d-89c6-4bb4-964b-f5d6b33885d2)
+
 
  
 ## Result :
-A PWM Signal is generated using the following frequency and various duty cycles are simulated 
+A PWM Signal is generated using the following frequency and various duty cycles are simulated.
 
 
 
